@@ -1,0 +1,22 @@
+1. short summary reqs Cantata/busco4_tables/short_summaries
+1 table for Transpi, 1 for trinity for each species
+end result Table - species as rows, columns are numbers
+include total BUSCO
+
+start with demosponges
+replicate file structure locally
+2. Full Table
+for each species 
+	for Transpi + trinity | evigene(Transpi) | assemblies(Trinity)
+		for each BUSCO gene
+			make a file for that busco gene - ending in .fa
+			from Sequence column grep that name in the corresponding transcript file ./evigene(Transpi) | ./assemblies(Trinity) - /netvolumes/srva229/molpal/Databases/CANTATA/Cnidaria/Acropora_aculeus/evigene> grep TransABySS.k41.R707698 Acropora_aculeus.combined.okay.fa 
+				copy that header + sequence into the new file
+954 x 2 files total	
+
+WAIT!
+3. go through BUSCO files
+	possibly move to be outside of transcripts
+	only need to download BUSCOs
+	input file with species names
+		get all the BUSCCOS for those species  
