@@ -32,7 +32,7 @@ def main(file_list: Annotated[str, typer.Argument()] = ''):
     def make_file_list(given_list):
         for j, entry in enumerate(outputs):
             with open (f'{out_dir}/{entry}', 'a') as out:
-                out.write(f'species_name\tC\tS\tD\tF\tM\tTotal\n')
+                out.write(f'species_name\tComplete_BUSCOs\tComplete_&_single-copy\tComplete_&_duplicated\tFragmented\tMissing\tTotal\n')
                 for f in os.listdir(search_dir):
                     base_name = f.split('.')[3].strip()
                     #if on the list
@@ -73,7 +73,7 @@ def main(file_list: Annotated[str, typer.Argument()] = ''):
     def make_file():
         for j, entry in enumerate(outputs):
             with open (f'{out_dir}/{entry}', 'a') as out:
-                out.write(f'species_name\tC\tS\tD\tF\tM\tTotal\n')
+                out.write(f'species_name\tComplete_BUSCOs\tComplete_&_single-copy\tComplete_&_duplicated\tFragmented\tMissing\tTotal\n')                
                 for f in os.listdir(search_dir):
                     if patterns[j] in f:
                         with open(search_dir + '/' + f, 'r') as file:
