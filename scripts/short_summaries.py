@@ -10,7 +10,10 @@ from typing_extensions import Annotated
 app = typer.Typer()
 
 @app.command()
-def main(file_list: Annotated[str, typer.Argument()] = ''):
+def main(file_list: Annotated[str, typer.Argument()] = '',
+         search_dir_in: Annotated[str, typer.Argument()] = '../short_summaries'
+        
+        ):
     """
     Python script to go through all files in a dir and summarize the content in one large table
     Default is ../short_summaries
@@ -20,13 +23,12 @@ def main(file_list: Annotated[str, typer.Argument()] = ''):
     pattern2 = '.Trinity.bus4.txt'
     patterns = [pattern, pattern2]
     outputs = ['TransPi.tsv','Trinity.tsv']
-    search_dir = '../short_summaries'
+    search_dir = search_dir_in
     out_dir = '../short_summaries_results'
     if not os.path.isdir(out_dir):
         os.mkdir(out_dir)
         
 #-------------------------------------------------------------------------------------------------------------------------------
-
     #TODO replace search dir with inputted
 
     def make_file_list(given_list):
