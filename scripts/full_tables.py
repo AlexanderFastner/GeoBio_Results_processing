@@ -60,62 +60,67 @@ for species in os.listdir(fasta_dir):
                     grep_file.write(f'{busco_id}\t{sequence}\n')
             print(f'finished making grep file {species}{patterns[i]}')
 
-
         #TransPi
         if i == 0:
-            #print(f'{fasta_dir}{species}/evigene/{species}.combined.okay.fa')
+            #check if already done
+            if os.path.exists(f'{fasta_dir}{species}/evigene/{species}.done'):
+                continue
+            else:
+                transcriptome_to_fix = f'{fasta_dir}{species}/evigene/{species}.combined.okay.fa'
 
-            transcriptome_to_fix = f'{fasta_dir}{species}/evigene/{species}.combined.okay.fa'
+                awk = f'awk \'{{ if($1 ~ />/){{ print $0 }} else{{ gsub(/{chr(92)}n$/,\"\"); printf "%s", $0 }}}}\' {transcriptome_to_fix} | sed \'s/>/{chr(92)}n>/g\' > {transcriptome_to_fix}_single_line.tmp'
 
-            awk = f'awk \'{{ if($1 ~ />/){{ print $0 }} else{{ gsub(/{chr(92)}n$/,\"\"); printf "%s", $0 }}}}\' {transcriptome_to_fix} | sed \'s/>/{chr(92)}n>/g\' > {transcriptome_to_fix}_single_line.tmp'
+                subprocess.run([awk], shell=True, capture_output=True, text=True)
 
-            subprocess.run([awk], shell=True, capture_output=True, text=True)
+                with open(f'./grep_search_{species}.TransPi.bus4.tsv', 'r') as grep:
+                    for line in grep:
+                        split_line = line.strip('\n').split('\t')
+                        seq = split_line[1]
+                        busco = split_line[0]
+                        if 'Missing!' not in seq:
+                            grep_cmd = f'grep {seq} -A 1 --no-group-separator {transcriptome_to_fix}_single_line.tmp'
+                            #print(grep_cmd)
+                            result = subprocess.run([grep_cmd], shell=True, capture_output=True, text=True).stdout.split('\n')
+                            header = result[0]
+                            sequence = result[1]
+                            with open(output_dir + species + '/evigene/' + busco + '.fa', 'a') as busco_new:
+                                busco_new.write(f'{header}\n')
+                                busco_new.write(f'{sequence}\n')
 
-            with open(f'./grep_search_{species}.TransPi.bus4.tsv', 'r') as grep:
-                for line in grep:
-                    split_line = line.strip('\n').split('\t')
-                    seq = split_line[1]
-                    busco = split_line[0]
-                    if 'Missing!' not in seq:
-                        grep_cmd = f'grep {seq} -A 1 --no-group-separator {transcriptome_to_fix}_single_line.tmp'
-                        #print(grep_cmd)
-                        result = subprocess.run([grep_cmd], shell=True, capture_output=True, text=True).stdout.split('\n')
-                        header = result[0]
-                        sequence = result[1]
-                        with open(output_dir + species + '/evigene/' + busco + '.fa', 'a') as busco_new:
-                            busco_new.write(f'{header}\n')
-                            busco_new.write(f'{sequence}\n')
-
-            #remove tmp file
-            remove_tmp = f'rm {transcriptome_to_fix}_single_line.tmp'
-            subprocess.run([remove_tmp], shell=True, capture_output=True, text=True)
-            print(f'finished Transpi {species}')
-
+                #remove tmp file
+                remove_tmp = f'rm {transcriptome_to_fix}_single_line.tmp'
+                subprocess.run([remove_tmp], shell=True, capture_output=True, text=True)
+                print(f'finished Transpi {species}')
+                subprocess.run([f'touch {fasta_dir}{species}/evigene/{species}.done'], shell=True, capture_output=False, text=False)
 
         #Trinity
         else:
-            with open(f'./grep_search_{species}.Trinity.bus4.tsv', 'r') as grep:
-                for line in grep:
-                    split_line = line.strip('\n').split('\t')
-                    seq = split_line[1]
-                    busco = split_line[0]
-                    if 'Missing!' not in seq:
-                        grep_cmd = f'grep {seq} -A 1 --no-group-separator {fasta_dir}{species}/assemblies/{species}.Trinity.fa'
-                        #print(grep_cmd)
-                        result = subprocess.run([grep_cmd], shell=True, capture_output=True, text=True).stdout.split('\n')
-                        header = result[0]
-                        sequence = result[1]
-                        with open(output_dir + species + '/assemblies/' + busco + '.fa', 'a') as busco_new:
-                            busco_new.write(f'{header}\n')
-                            busco_new.write(f'{sequence}\n')
-            print(f'finished Trinity {species}')
-                    
-        print()
-        #TODO rm all ./grep_search files
-        print(f'test remove: rm ./grep_search_{species}{patterns[i]}')
-        rm_cmd = f'test remove: rm ./grep_search_{species}{patterns[i]}'
-        subprocess.run([rm_cmd], shell=True, capture_output=True, text=True)
-        
+            #check if already done
+            if os.path.exists(f'{fasta_dir}{species}/assemblies/{species}.done'):
+                continue
+            else:
+                with open(f'./grep_search_{species}.Trinity.bus4.tsv', 'r') as grep:
+                    for line in grep:
+                        split_line = line.strip('\n').split('\t')
+                        seq = split_line[1]
+                        busco = split_line[0]
+                        if 'Missing!' not in seq:
+                            grep_cmd = f'grep {seq} -A 1 --no-group-separator {fasta_dir}{species}/assemblies/{species}.Trinity.fa'
+                            #print(grep_cmd)
+                            result = subprocess.run([grep_cmd], shell=True, capture_output=True, text=True).stdout.split('\n')
+                            header = result[0]
+                            sequence = result[1]
+                            with open(output_dir + species + '/assemblies/' + busco + '.fa', 'a') as busco_new:
+                                busco_new.write(f'{header}\n')
+                                busco_new.write(f'{sequence}\n')
+                print(f'finished Trinity {species}')
+
+            print()
+            #TODO rm all ./grep_search files
+            print(f'test remove: rm ./grep_search_{species}{patterns[i]}')
+            rm_cmd = f'test remove: rm ./grep_search_{species}{patterns[i]}'
+            subprocess.run([rm_cmd], shell=True, capture_output=True, text=True)
+            subprocess.run([f'touch {fasta_dir}{species}/assemblies/{species}.done'], shell=True, capture_output=False, text=False)
+
         i+=1
-#-------------------------------------------------------------------------------------------------------------------------------    
-    
+#------------------------------------------------------------------------------------------------------------------------------- 
