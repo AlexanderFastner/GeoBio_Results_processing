@@ -15,11 +15,13 @@
 import os
 import subprocess
 #-------------------------------------------------------------------------------------------------------------------------------
+# To run change the fasta (search) and output dirs
+fasta_dir = '/netvolumes/srva229/molpal/hpc_exchange/Alex/GeoBio_Results_processing/Cnidaria/'
+output_dir = '/netvolumes/srva229/molpal/hpc_exchange/Alex/GeoBio_Results_processing/full_tables_output/'
+#-------------------------------------------------------------------------------------------------------------------------------
 pattern = '.TransPi.bus4.tsv'
 pattern2 = '.Trinity.bus4.tsv'
 patterns = [pattern, pattern2]
-fasta_dir = '/netvolumes/srva229/molpal/hpc_exchange/Alex/GeoBio_Results_processing/Cnidaria/'
-output_dir = '/netvolumes/srva229/molpal/hpc_exchange/Alex/GeoBio_Results_processing/full_tables_output/'
 #-------------------------------------------------------------------------------------------------------------------------------
 #reset out_dir
 cmd = f'rm {output_dir}*'
@@ -114,13 +116,13 @@ for species in os.listdir(fasta_dir):
                                 busco_new.write(f'{header}\n')
                                 busco_new.write(f'{sequence}\n')
                 print(f'finished Trinity {species}')
+                subprocess.run([f'touch {fasta_dir}{species}/assemblies/{species}.done'], shell=True, capture_output=False, text=False)
 
             print()
             #TODO rm all ./grep_search files
             print(f'test remove: rm ./grep_search_{species}{patterns[i]}')
             rm_cmd = f'test remove: rm ./grep_search_{species}{patterns[i]}'
             subprocess.run([rm_cmd], shell=True, capture_output=True, text=True)
-            subprocess.run([f'touch {fasta_dir}{species}/assemblies/{species}.done'], shell=True, capture_output=False, text=False)
 
         i+=1
 #------------------------------------------------------------------------------------------------------------------------------- 
