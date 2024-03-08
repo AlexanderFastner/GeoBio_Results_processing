@@ -129,6 +129,8 @@ print(len(all_species))
 df = pd.DataFrame(all_species).T.fillna('missing')
 color_mapping = {'single': 0, 'fragmented': 1, 'multi': 2, 'missing' : 3}
 df_mapped = df.replace(color_mapping)
+#save df as csv
+df_mapped.to_csv('prot_busco_df.csv')
 
 #-------------------------------------------------------------------------------------------------------------------------------
 #Plot
